@@ -64,17 +64,17 @@ export default {
     BookItem: () =>
       import(
         /* webpackChunkName: "book-item" */
-        "@/components/BookItem.vue"
+        '@/components/BookItem.vue'
       )
   },
   created() {
     this.axios
-      .get("/categories/random/4")
+      .get('/categories/random/4')
       .then(response => (this.categories = response.data.data))
       .catch(error => console.log(error.responses));
 
     this.axios
-      .get("/books/top/4")
+      .get('/books/top/4')
       .then(response => (this.books = response.data.data))
       .catch(error => console.log(error.responses));
   }

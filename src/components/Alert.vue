@@ -1,5 +1,5 @@
 <template>
-  <v-snackbar :color="color" v-model="value" multi-line top>
+  <v-snackbar :color="color" v-model="alert" multi-line top>
     {{ text }}
     <v-btn dark text @click="close">
       <v-icon>mdi-close-circle</v-icon>
@@ -8,15 +8,15 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
-  name: "alert",
+  name: 'alert',
   computed: {
     ...mapGetters({
-      status: "alert/status",
-      color: "alert/color",
-      text: "alert/text"
+      status: 'alert/status',
+      color: 'alert/color',
+      text: 'alert/text'
     }),
     alert: {
       get() {
@@ -24,11 +24,21 @@ export default {
       },
       set() {
         this.setAlert({
-          status: value,
-          type: "success",
-          text: "test"
+          status: false,
+          type: 'success',
+          text: 'test'
         });
       }
+    }
+  },
+  methods: {
+    ...mapActions({
+      setAlert: 'alert/set'
+    }),
+    close() {
+      this.setAlert({
+        status: false
+      });
     }
   }
 };

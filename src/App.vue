@@ -18,12 +18,13 @@
       <v-spacer></v-spacer>
 
       <v-btn icon to="/about">
-        <v-badge color="orange" overlap>
+        <v-badge color="orange" overlap v-if="countCart > 0">
           <template v-slot:badge>
-            <span>5</span>
+            <span>{{ countCart }}</span>
           </template>
           <v-icon>mdi-cart</v-icon>
         </v-badge>
+        <v-icon v-else>mdi-cart</v-icon>
       </v-btn>
     </v-app-bar>
 
@@ -33,12 +34,13 @@
       </v-btn>
       <v-spacer></v-spacer>
       <v-btn icon to="/about">
-        <v-badge color="orange" overlap>
+        <v-badge color="orange" overlap v-if="countCart > 0">
           <template v-slot:badge>
-            <span>3</span>
+            <span>{{ countCart }}</span>
           </template>
           <v-icon>mdi-cart</v-icon>
         </v-badge>
+        <v-icon v-else>mdi-cart</v-icon>
       </v-btn>
     </v-app-bar>
 
@@ -89,7 +91,7 @@
       </template>
     </v-navigation-drawer>
     <!-- navigationEnd -->
-
+    <Alert></Alert>
     <!-- content -->
     <v-content>
       <v-container fluid>
@@ -113,20 +115,30 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
-  name: "App",
+  name: 'App',
+  components: {
+    Alert: () => import('./components/Alert')
+  },
   data: () => ({
+    // toggle menus
     drawer: false,
+
     menus: [
-      { title: "Home", icon: "mdi-home", route: "/" },
-      { title: "About", icon: "mdi-account", route: "/about" }
+      { title: 'Home', icon: 'mdi-home', route: '/' },
+      { title: 'About', icon: 'mdi-account', route: '/about' }
     ],
     guest: false
   }),
   computed: {
     isHome() {
-      return this.$route.path === "/";
-    }
+      return this.$route.path === '/';
+    },
+    ...mapGetters({
+      countCart: 'cart/count'
+    })
   }
 };
 </script>
