@@ -13,7 +13,9 @@
         label="Search"
         prependInnerIcon="mdi-magnify"
         soloInverted
-      ></v-text-field>
+        @click="dialog = true"
+      >
+      </v-text-field>
 
       <v-spacer></v-spacer>
 
@@ -91,7 +93,22 @@
       </template>
     </v-navigation-drawer>
     <!-- navigationEnd -->
-    <Alert></Alert>
+    <!-- alert -->
+    <Alert />
+    <!-- alertEnd -->
+
+    <!-- search -->
+    <v-dialog
+      v-model="dialog"
+      scrollable
+      fullscreen
+      hide-overlay
+      transition="dialog-transition"
+    >
+      <search @closed="closeDialog"></search>
+    </v-dialog>
+    <!-- searchEnd -->
+
     <!-- content -->
     <v-content>
       <v-container fluid>
@@ -120,11 +137,13 @@ import { mapGetters } from 'vuex';
 export default {
   name: 'App',
   components: {
-    Alert: () => import('./components/Alert')
+    Alert: () => import('./components/Alert'),
+    Search: () => import('./components/Search')
   },
   data: () => ({
     // toggle menus
     drawer: false,
+    dialog: false,
 
     menus: [
       { title: 'Home', icon: 'mdi-home', route: '/' },
@@ -132,6 +151,11 @@ export default {
     ],
     guest: false
   }),
+  methods: {
+    closeDialog(value) {
+      this.dialog = value;
+    }
+  },
   computed: {
     isHome() {
       return this.$route.path === '/';
