@@ -13,7 +13,7 @@
         label="Search"
         prependInnerIcon="mdi-magnify"
         soloInverted
-        @click="dialog = true"
+        @click="setDialogComponent('search')"
       >
       </v-text-field>
 
@@ -98,7 +98,7 @@
     <!-- alertEnd -->
 
     <!-- search -->
-    <v-dialog
+    <!-- <v-dialog
       v-model="dialog"
       scrollable
       fullscreen
@@ -106,7 +106,18 @@
       transition="dialog-transition"
     >
       <search @closed="closeDialog"></search>
-    </v-dialog>
+    </v-dialog> -->
+
+    <keep-alive>
+      <v-dialog
+        v-model="dialog"
+        fullscreen
+        hide-overlay
+        transition="dialog-transition"
+      >
+        <component :is="currentComponent" @closed="setDialogStatus"></component>
+      </v-dialog>
+    </keep-alive>
     <!-- searchEnd -->
 
     <!-- content -->
@@ -132,7 +143,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'App',
@@ -143,26 +154,36 @@ export default {
   data: () => ({
     // toggle menus
     drawer: false,
-    dialog: false,
-
     menus: [
       { title: 'Home', icon: 'mdi-home', route: '/' },
       { title: 'About', icon: 'mdi-account', route: '/about' }
-    ],
-    guest: false
+    ]
   }),
   methods: {
-    closeDialog(value) {
-      this.dialog = value;
-    }
+    ...mapActions({
+      setDialogStatus: 'dialog/setStatus',
+      setDialogComponent: 'dialog/setComponent'
+    })
   },
   computed: {
     isHome() {
       return this.$route.path === '/';
     },
     ...mapGetters({
-      countCart: 'cart/count'
-    })
+      countCart: 'cart/count',
+      guest: 'auth/guest',
+      user: 'auth/user',
+      dialogStatus: 'dialog/status',
+      currentComponent: 'dialog/component'
+    }),
+    dialog: {
+      get() {
+        return this.dialogStatus;
+      },
+      set(value) {
+        this.setDialogStatus(value);
+      }
+    }
   }
 };
 </script>

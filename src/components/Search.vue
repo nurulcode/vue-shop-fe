@@ -8,7 +8,7 @@
         hide-details
         append-icon="mdi-microphone"
         flat
-        autofocus="true"
+        autofocus
         label="Search"
         prepend-icon="mdi-magnify"
         v-model="keyword"
