@@ -23,12 +23,97 @@
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             :rules="passwordRules"
             :type="showPassword ? 'text' : 'password'"
-            label="password"
+            label="Password"
             hint="Al last 6 characters"
             counter
+            @click:append="showPassword = !showPassword"
           ></v-text-field>
+          <div class="text-xs-center">
+            <v-btn color="accent lighten-1" :disabled="!valid" @click="submit">
+              Login
+              <v-icon right drak>mdi-lock-open</v-icon>
+            </v-btn>
+          </div>
         </v-form>
       </v-container>
     </v-card>
   </div>
 </template>
+
+<script>
+import { mapGetters, mapActions } from 'vuex';
+// import { mapActions, mapGetters } from 'vuex';
+export default {
+  name: 'login',
+  data() {
+    return {
+      valid: true,
+      email: 'code@example.org',
+      emailRules: [
+        v => !!v || 'E-mail is required',
+        v =>
+          /([a-zA-Z0-9_]{1,})(@)([a-zA-Z0-9_]{2,}).([a-zA-Z0-9_]{2,})+/.test(
+            v
+          ) || 'E-mail must be valid'
+      ],
+      showPassword: false,
+      password: '',
+      passwordRules: [
+        v => !!v || 'Password required',
+        v => (v && v.length >= 6) || 'Min 6 characters'
+      ]
+    };
+  },
+  computed: {
+    ...mapGetters({
+      user: 'auth/user'
+    })
+  },
+  methods: {
+    ...mapActions({
+      setAlert: 'alert/set',
+      setAuth: 'auth/set'
+    })
+  },
+  submit() {
+    if (this.$ref.form.validate()) {
+      let formData = {
+        email: this.email,
+        password: this.password
+      };
+
+      this.axios
+        .post('/login', formData)
+        .then(response => {
+          let { data } = response.data;
+          this.setAuth(data);
+          if (this.user.id > 0) {
+            this.setAlert({
+              status: true,
+              color: 'success',
+              text: 'Login success'
+            });
+            this.close();
+          } else {
+            this.setAlert({
+              status: true,
+              color: 'error',
+              text: 'login failed'
+            });
+          }
+        })
+        .catch(error => {
+          let response = error.response;
+          this.setAlert({
+            status: true,
+            text: response.data.message,
+            color: 'error'
+          });
+        });
+    }
+  },
+  close() {
+    this.$emit('closed', false);
+  }
+};
+</script>
