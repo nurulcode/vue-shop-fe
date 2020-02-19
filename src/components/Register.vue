@@ -84,7 +84,7 @@ export default {
           ) || 'E-mail must be valid'
       ],
       showPassword: false,
-      password: '123456',
+      password: '',
       passwordRules: [
         v => !!v || 'Password required.',
         v => (v && v.length >= 6) || 'Min 6 characters'
@@ -110,7 +110,7 @@ export default {
         formData.set('password', this.password);
 
         this.axios
-          .post('register', this.password)
+          .post('/rregister', this.password)
           .then(response => {
             let { data } = response.data;
             this.setAuth(data);
@@ -121,7 +121,8 @@ export default {
             });
           })
           .catch(error => {
-            let { data } = error.response.data;
+            let { data } = error.response;
+            console.log(data);
             this.setAlert({
               status: true,
               color: 'error',

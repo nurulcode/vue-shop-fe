@@ -53,17 +53,31 @@
       <v-list>
         <v-list-item v-if="!guest">
           <v-list-item-avatar>
-            <v-img src="https://randomuser.me/api/portraits/men/78.jpg"></v-img>
+            <v-img :src="getImage(`/users/${user.avatar}`)"></v-img>
           </v-list-item-avatar>
           <v-list-item-content>
-            <v-list-item-title><strong>John Leider</strong></v-list-item-title>
+            <v-list-item-title
+              ><strong>{{ user.name }}</strong></v-list-item-title
+            >
           </v-list-item-content>
         </v-list-item>
 
         <!-- login and register -->
         <div class="pa-2" v-if="guest">
-          <v-btn block color="info" class="mb-1">Login</v-btn>
-          <v-btn block color="success">Register</v-btn>
+          <v-btn
+            block
+            color="info"
+            class="mb-1"
+            @click="setDialogComponent('login')"
+            >Login</v-btn
+          >
+          <v-btn
+            block
+            color="success"
+            class="mb-1"
+            @click="setDialogComponent('register')"
+            >Register</v-btn
+          >
         </div>
 
         <v-divider></v-divider>
@@ -86,7 +100,7 @@
       <!-- logout -->
       <template v-slot:append v-if="!guest">
         <div class="pa-2">
-          <v-btn block color="red" dark>
+          <v-btn block color="red" dark @click="logout">
             Logout
           </v-btn>
         </div>
@@ -149,7 +163,9 @@ export default {
   name: 'App',
   components: {
     Alert: () => import('./components/Alert'),
-    Search: () => import('./components/Search')
+    Search: () => import('./components/Search'),
+    Login: () => import('./components/Login'),
+    Register: () => import('./components/Register')
   },
   data: () => ({
     // toggle menus
@@ -162,8 +178,36 @@ export default {
   methods: {
     ...mapActions({
       setDialogStatus: 'dialog/setStatus',
-      setDialogComponent: 'dialog/setComponent'
-    })
+      setDialogComponent: 'dialog/setComponent',
+      setAuth: 'auth/set',
+      setAlert: 'alert/set'
+    }),
+    logout() {
+      let config = {
+        header: {
+          Authorization: `'Bearer ${this.user.api_token}`
+        }
+      };
+      this.axios
+        .post('/logout', {}, config)
+        .then(() => {
+          this.setAuth({});
+          this.setAlert({
+            status: true,
+            color: 'success',
+            text: 'logout successfullly'
+          });
+          this.drawer = false;
+        })
+        .catch(error => {
+          let { data } = error.response;
+          this.setAlert({
+            status: true,
+            color: 'error',
+            text: data.message
+          });
+        });
+    }
   },
   computed: {
     isHome() {

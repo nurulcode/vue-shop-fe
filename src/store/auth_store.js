@@ -1,17 +1,15 @@
 export default {
-  namespaces: true,
+  namespaced: true,
   state: {
     user: {}
   },
   mutations: {
     set: (state, payload) => {
-      console.log('ini payload di auth_store', payload);
       state.user = payload;
     }
   },
   actions: {
     set: ({ commit }, payload) => {
-      console.log('ini commit di auth_store', commit);
       commit('set', payload);
     }
   },
