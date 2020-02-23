@@ -2,8 +2,9 @@ export default {
   namespaced: true,
   state: {
     status: false,
-    color: "success",
-    text: ""
+    color: 'success',
+    text: '',
+    timeout: 2000
   },
   mutations: {
     set: (state, payload) => {
@@ -14,12 +15,13 @@ export default {
   },
   actions: {
     set: ({ commit }, payload) => {
-      commit("set", payload);
+      commit('set', payload);
     }
   },
   getters: {
     status: state => state.status,
     color: state => state.color,
-    text: state => state.text
+    text: state => state.text,
+    timeout: state => state.timeout
   }
 };

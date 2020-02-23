@@ -70,10 +70,12 @@ router.beforeEach((to, from, next) => {
     if (store.getters['auth/guest']) {
       store.dispatch('alert/set', {
         status: true,
-        text: 'Login first',
-        colot: 'error'
+        text: 'Silahkan login',
+        color: 'error'
       });
-      store.dispatch('dialod/setComponenet', 'login');
+      store.dispatch('setPrevUrl', to.path);
+      store.dispatch('dialog/setComponent', 'login');
+      store.dispatch('dialog/setStatus', true);
     } else {
       next();
     }

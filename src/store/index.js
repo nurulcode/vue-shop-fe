@@ -9,9 +9,19 @@ import region from './region_store';
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  state: {},
-  mutations: {},
-  actions: {},
+  state: {
+    prevUrl: ''
+  },
+  mutations: {
+    setPrevUrl: (state, value) => {
+      state.prevUrl = value;
+    }
+  },
+  actions: {
+    setPrevUrl: ({ commit }, value) => {
+      commit('setPrevUrl', value);
+    }
+  },
   modules: {
     cart,
     alert,
@@ -19,5 +29,7 @@ export default new Vuex.Store({
     dialog,
     region
   },
-  getters: {}
+  getters: {
+    prevUrl: state => state.prevUrl
+  }
 });

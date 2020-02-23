@@ -1,9 +1,6 @@
 <template>
-  <v-snackbar :color="color" v-model="alert" multi-line top>
+  <v-snackbar :color="color" v-model="alert" :timeout="timeout" multi-line top>
     {{ text }}
-    <v-btn dark text @click="close">
-      <v-icon>mdi-close-circle</v-icon>
-    </v-btn>
   </v-snackbar>
 </template>
 
@@ -16,7 +13,8 @@ export default {
     ...mapGetters({
       status: 'alert/status',
       color: 'alert/color',
-      text: 'alert/text'
+      text: 'alert/text',
+      timeout: 'alert/timeout'
     }),
     alert: {
       get() {
@@ -26,7 +24,8 @@ export default {
         this.setAlert({
           status: false,
           type: 'success',
-          text: 'test'
+          text: 'test',
+          timeout: 2000
         });
       }
     }
