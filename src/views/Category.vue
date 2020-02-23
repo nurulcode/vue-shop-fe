@@ -57,8 +57,6 @@ export default {
       this.axios
         .get(url)
         .then(response => {
-          console.log(response.data);
-
           let { data } = response.data;
           let category = data;
 

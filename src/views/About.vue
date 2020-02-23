@@ -1,140 +1,150 @@
 <template>
-  <v-card>
-    <v-toolbar drak color="info">
-      <v-btn icon drak @click.native="close">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
-    </v-toolbar>
-    <v-divider></v-divider>
-    <v-container fluid>
-      <v-form ref="form" v-model="valid" lazy-validation>
-        <v-text-field
-          v-model="name"
-          :rules="nameRules"
-          :counter="255"
-          label="Name"
-          required
-          append-icon="mdi-account"
-          color="info"
-        ></v-text-field>
+  <div>
+    <v-subheader>Shipping Address</v-subheader>
+    <div>
+      <v-card>
+        <v-container>
+          <v-form ref="form" lazy-validation>
+            <v-text-field
+              label="name"
+              v-model="name"
+              required
+              append-icon="mdi-account"
+            ></v-text-field>
 
-        <v-text-field
-          v-model="email"
-          :rules="emailRules"
-          label="E-Mail"
-          required
-          append-icon="mdi-email"
-          color="info"
-        ></v-text-field>
+            <v-textarea
+              label="address"
+              v-model="address"
+              required
+              auto-grow
+              rows="3"
+              append-icon="mdi-mail"
+            ></v-textarea>
 
-        <v-text-field
-          v-model="password"
-          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-          :rules="passwordRules"
-          :type="showPassword ? 'text' : 'password'"
-          :label="password"
-          hint="At least 6 characters"
-          counter
-          @click:append="showPassword = !showPassword"
-          color="info"
-        ></v-text-field>
-        <v-checkbox
-          color="info"
-          v-model="checkbox"
-          label="Do you agree with our privacy policy?"
-          :rules="[v => !!v || 'You must agree to continue']"
-        ></v-checkbox>
-        <div class="text-xs-center">
-          <v-btn
-            color="accent lighten-1"
-            :disabled="!valid"
-            @click="submit"
-            class="mr-5"
-          >
-            Register <v-icon right drak>mdi-lock-plus</v-icon>
-          </v-btn>
+            <v-text-field
+              label="phone"
+              v-model="phone"
+              required
+              append-icon="mdi-phone"
+            ></v-text-field>
 
-          <v-btn @click="clear">
-            Reset <v-icon right drak>mdi-lock-reset</v-icon>
-          </v-btn>
-        </div>
-      </v-form>
-    </v-container>
-  </v-card>
+            <v-select
+              :items="province"
+              v-model="province_id"
+              item-text="province"
+              item-value="id"
+              label="Province"
+              persistent-hint
+              single-line
+            ></v-select>
+
+            <v-select
+              v-if="province_id > 0"
+              :items="citiesByProvince"
+              v-model="city_id"
+              item-text="city_name"
+              item-value="id"
+              label="City"
+              persistent-hint
+              single-line
+            ></v-select>
+          </v-form>
+
+          <v-card-actions>
+            <v-btn color="success" drak @click="saveShipping">
+              <v-icon left dark>mdi-content-save</v-icon> &nbsp; Save
+            </v-btn>
+          </v-card-actions>
+        </v-container>
+      </v-card>
+    </div>
+  </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 export default {
-  name: 'register',
   data() {
     return {
-      valid: true,
       name: '',
-      nameRules: [
-        v => !!v || 'Name is required',
-        v => (v && v.length <= 255) || 'Name must be less than 255 characters'
-      ],
-      email: 'akautzer@example.net',
-      emailRules: [
-        v => !!v || 'E-mail is required',
-        v =>
-          /([a-zA-Z0-9_]{1,})(@)([a-zA-Z0-9_]{2,}).([a-zA-Z0-9_]{2,})+/.test(
-            v
-          ) || 'E-mail must be valid'
-      ],
-      showPassword: false,
-      password: '123456',
-      passwordRules: [
-        v => !!v || 'Password required.',
-        v => (v && v.length >= 6) || 'Min 6 characters'
-      ],
-      checkbox: false
+      address: '',
+      phone: '',
+      province_id: 0,
+      city_id: 0
     };
   },
   computed: {
     ...mapGetters({
-      user: 'auth/user'
-    })
+      user: 'auth/user',
+      provinces: 'region/provinces',
+      cities: 'region/cities'
+    }),
+    citiesByProvince() {
+      let province_id = this.province_id;
+      return this.cities.filter(city => {
+        if (city.province_id == province_id) return city;
+      });
+    }
   },
   methods: {
     ...mapActions({
       setAlert: 'alert/set',
-      setAuth: 'auth/set'
+      setAuth: 'auth/set',
+      setProvinces: 'region/setProvinces',
+      setCities: 'region/setCities'
     }),
-    submit() {
-      if (this.$refs.form.validate()) {
-        let formData = new FormData();
-        formData.set('name', this.name);
-        formData.set('email', this.email);
-        formData.set('password', this.password);
+    saveShipping() {
+      let formData = new FormData();
+      formData.set('name', this.name);
+      formData.set('address', this.address);
+      formData.set('phone', this.phone);
+      formData.set('province_id', this.province_id);
+      formData.set('city_id', this.city_id);
 
-        this.axios
-          .post('register', this.password)
-          .then(response => {
-            let { data } = response.data;
-            this.setAuth(data);
-            this.setAlert({
-              status: true,
-              color: 'success',
-              text: 'Register success'
-            });
-          })
-          .catch(error => {
-            let { data } = error.response.data;
-            this.setAlert({
-              status: true,
-              color: 'error',
-              text: data.message
-            });
+      let config = {
+        headers: {
+          Authorization: 'Bearer' + this.user.api_token
+        }
+      };
+
+      this.axios
+        .post('/shipping', formData, config)
+        .then(res => {
+          let { data } = res.data;
+          this.setAuth(data);
+          this.setAlert({
+            status: true,
+            text: res.data.message,
+            color: 'success'
           });
-      }
-    },
-    close() {
-      this.$emit('closed', false);
-    },
-    clear() {
-      this.$refs.form.reset();
+        })
+        .catch(err => {
+          let { data } = err;
+          this.setAlert({
+            status: true,
+            text: data.messate,
+            color: 'error'
+          });
+        });
+    }
+  },
+  created() {
+    this.name = this.user.name;
+    this.address = this.user.address;
+    this.phone = this.user.phone;
+    this.city_id = this.user.city_id;
+    this.province_id = this.user.province_id;
+
+    if (this.provinces && this.provinces.length == 0) {
+      this.axios.get('/provinces').then(response => {
+        let { data } = response.data;
+        this.setProvinces(data);
+      });
+
+      this.axios.get('/cities').then(response => {
+        let { data } = response.data;
+        this.setCities(data);
+      });
     }
   }
 };

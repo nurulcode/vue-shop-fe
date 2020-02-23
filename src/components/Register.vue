@@ -79,9 +79,8 @@ export default {
       emailRules: [
         v => !!v || 'E-mail is required',
         v =>
-          /([a-zA-Z0-9_]{1,})(@)([a-zA-Z0-9_]{2,}).([a-zA-Z0-9_]{2,})+/.test(
-            v
-          ) || 'E-mail must be valid'
+          /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/.test(v) ||
+          'E-mail must be valid'
       ],
       showPassword: false,
       password: '',
@@ -110,7 +109,7 @@ export default {
         formData.set('password', this.password);
 
         this.axios
-          .post('/rregister', this.password)
+          .post('/register', formData)
           .then(response => {
             let { data } = response.data;
             this.setAuth(data);
@@ -119,6 +118,7 @@ export default {
               color: 'success',
               text: 'Register success'
             });
+            this.close();
           })
           .catch(error => {
             let { data } = error.response;
