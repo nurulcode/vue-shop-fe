@@ -80,7 +80,6 @@ export default {
       setAlert: 'alert/set'
     }),
     buy() {
-      // console.log(this.book);
       this.addCart(this.book);
 
       this.setAlert({

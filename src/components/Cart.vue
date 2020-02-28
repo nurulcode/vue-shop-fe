@@ -42,8 +42,13 @@
                     rounded
                     depressed
                     @click.stop="addCart(item)"
+                    v-if="item.stock > item.quantity"
                   >
                     <v-icon drak color="success">mdi-plus-circle</v-icon>
+                  </v-btn>
+
+                  <v-btn v-else icon small rounded depressed>
+                    <v-icon drak color="disable">mdi-plus-circle</v-icon>
                   </v-btn>
                 </span>
               </v-list-item-subtitle>

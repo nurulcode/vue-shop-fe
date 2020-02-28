@@ -11,6 +11,7 @@ export default {
         cover: payload.cover,
         price: payload.price,
         weight: payload.weight,
+        stock: payload.stock,
         quantity: 1
       });
     },
@@ -23,6 +24,8 @@ export default {
         cover: payload.cover,
         price: payload.price,
         weight: payload.weight,
+        stock: payload.stock,
+
         quantity: payload.quantity
       });
 
@@ -38,7 +41,6 @@ export default {
   actions: {
     // tambah cart
     add: ({ state, commit }, payload) => {
-      // console.log(state);
       // apa data yang di tambah ada ?
       let cartItem = state.carts.find(item => item.id === payload.id);
       // if value false then run insert mutation

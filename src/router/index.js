@@ -70,12 +70,19 @@ router.beforeEach((to, from, next) => {
     if (store.getters['auth/guest']) {
       store.dispatch('alert/set', {
         status: true,
-        text: 'Silahkan login',
+        text: 'login dulu',
         color: 'error'
       });
-      store.dispatch('setPrevUrl', to.path);
-      store.dispatch('dialog/setComponent', 'login');
-      store.dispatch('dialog/setStatus', true);
+
+      if (store.getters['cart/count'] == 0) {
+        store.dispatch('setPrevUrl', '/');
+        store.dispatch('dialog/setComponent', 'login');
+        store.dispatch('dialog/setStatus', true);
+      } else {
+        store.dispatch('setPrevUrl', to.path);
+        store.dispatch('dialog/setComponent', 'login');
+        store.dispatch('dialog/setStatus', true);
+      }
     } else {
       next();
     }

@@ -5,12 +5,7 @@
       <v-card>
         <v-container>
           <v-form ref="form" lazy-validation>
-            <v-text-field
-              label="Name"
-              v-model="name"
-              required
-              append-icon="mdi-account"
-            ></v-text-field>
+            <v-text-field label="Name" v-model="name" required append-icon="mdi-account"></v-text-field>
 
             <v-textarea
               label="address"
@@ -21,12 +16,7 @@
               append-icon="mdi-mail"
             ></v-textarea>
 
-            <v-text-field
-              label="phone"
-              v-model="phone"
-              required
-              append-icon="mdi-phone"
-            ></v-text-field>
+            <v-text-field label="phone" v-model="phone" required append-icon="mdi-phone"></v-text-field>
 
             <v-select
               v-model="province_id"
@@ -52,9 +42,94 @@
 
           <v-card-actions>
             <v-btn color="success" drak @click="saveShipping">
-              <v-icon left dark>mdi-content-save</v-icon> &nbsp; Save
+              <v-icon left dark>mdi-content-save</v-icon>&nbsp; Save
             </v-btn>
           </v-card-actions>
+
+          <v-subheader>Yout Shopping Cart</v-subheader>
+          <div v-if="countCart > 0">
+            <v-card flat>
+              <v-list three-line v-if="countCart > 0">
+                <template v-for="(item, index) in carts">
+                  <v-list-item :key="`cart${index}`">
+                    <v-list-item-avatar>
+                      <v-img :src="getImage(`/books/${item.cover}`)"></v-img>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title v-html="item.title"></v-list-item-title>
+                      <v-list-item-subtitle>
+                        Rp. {{ item.price.toLocaleString('id-ID') }} ({{
+                        item.weight
+                        }}
+                        Kg)
+                        <span
+                          style="float:right"
+                        >{{ item.quantity }}</span>
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+              </v-list>
+              <v-container>
+                <v-card-actions>
+                  Subtotal
+                  <v-spacer></v-spacer>
+                  Rp.{{ totalPrice.toLocaleString('id-ID') }}
+                </v-card-actions>
+              </v-container>
+            </v-card>
+          </div>
+          <v-subheader>Courier</v-subheader>
+          <div>
+            <v-card flat>
+              <v-container>
+                <v-select
+                  v-model="courier"
+                  :items="couriers"
+                  @change="getServices"
+                  item-text="text"
+                  item-value="id"
+                  label="Courier"
+                  persistent-hint
+                  single-line
+                ></v-select>
+
+                <v-select
+                  v-model="service"
+                  v-if="services.length"
+                  :items="services"
+                  @change="calculateBill"
+                  item-text="resume"
+                  item-value="service"
+                  label="Courier Service"
+                  persistent-hint
+                  single-line
+                ></v-select>
+
+                <v-card-actions>
+                  Subtotal
+                  <v-spacer></v-spacer>
+                  Rp. {{ shippingCost.toLocaleString('id-ID') }}
+                </v-card-actions>
+              </v-container>
+            </v-card>
+          </div>
+          <v-subheader>Total</v-subheader>
+          <v-card>
+            <v-container>
+              <v-layout row wrap>
+                <v-flex xs6 text-center>
+                  Total Bill ({{ totalQuantity }} items)
+                  <div class="title">{{ totalBill.toLocaleString('id-ID') }}</div>
+                </v-flex>
+                <v-flex xs6 text-center>
+                  <v-btn color="orange">
+                    <v-icon left light>mdi-cash</v-icon>&nbsp; Pay
+                  </v-btn>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card>
         </v-container>
       </v-card>
     </div>
@@ -70,14 +145,27 @@ export default {
       address: '',
       phone: '',
       province_id: 0,
-      city_id: 0
+      city_id: 0,
+
+      courier: '',
+      couriers: [],
+      service: '',
+      services: [],
+      shippingCost: 0,
+      totalBill: 0
     };
   },
   computed: {
     ...mapGetters({
       user: 'auth/user',
       provinces: 'region/provinces',
-      cities: 'region/cities'
+      cities: 'region/cities',
+
+      carts: 'cart/carts',
+      countCart: 'cart/count',
+      totalPrice: 'cart/totalPrice',
+      totalQuantity: 'cart/totalQuantity',
+      totalWeight: 'cart/totalWeight'
     }),
 
     citiesByProvince() {
@@ -92,7 +180,8 @@ export default {
       setAlert: 'alert/set',
       setAuth: 'auth/set',
       setProvinces: 'region/setProvinces',
-      setCities: 'region/setCities'
+      setCities: 'region/setCities',
+      setCart: 'cart/set'
     }),
     saveShipping() {
       let formData = new FormData();
@@ -104,9 +193,11 @@ export default {
 
       let config = {
         headers: {
-          Authorization: 'Bearer' + this.user.api_token
+          Authorization: 'Bearer ' + this.user.api_token
         }
       };
+
+      // console.log('ini', formData, config);
 
       this.axios
         .post('/shipping', formData, config)
@@ -127,6 +218,54 @@ export default {
             color: 'error'
           });
         });
+    },
+    getServices() {
+      let courier = this.courier;
+      let encodedCart = JSON.stringify(this.carts);
+      //console.log(encodedCart)
+      let formData = new FormData();
+      formData.set('courier', courier);
+      formData.set('carts', encodedCart);
+
+      let config = {
+        headers: {
+          Authorization: 'Bearer ' + this.user.api_token
+        }
+      };
+      this.axios
+        .post('/services', formData, config)
+        .then(response => {
+          let response_data = response.data;
+          // jika tidak error maka data service dan cart akan diupdate.
+          if (response_data.status != 'error') {
+            this.services = response_data.data.services;
+            this.setCart(response_data.data.safe_carts);
+          }
+
+          this.setAlert({
+            status: true,
+            text: response_data.message,
+            color: response_data.status
+          });
+        })
+        .catch(error => {
+          let responses = error.response;
+          this.setAlert({
+            status: true,
+            text: responses.data.message,
+            color: 'error'
+          });
+        });
+    },
+
+    calculateBill() {
+      let selectedService = this.services.find(service => {
+        return service.service == this.service;
+      });
+      // console.log(selectedService);
+
+      this.shippingCost = selectedService.cost;
+      this.totalBill = parseInt(this.totalPrice) + parseInt(this.shippingCost);
     }
   },
   created() {
@@ -139,16 +278,22 @@ export default {
     if (this.provinces && this.provinces.length == 0) {
       this.axios.get('/provinces').then(response => {
         let { data } = response.data;
-        console.log(response);
+        // console.log(response);
 
         this.setProvinces(data);
       });
 
       this.axios.get('/cities').then(response => {
-        console.log(response);
+        // console.log(response);
 
         let { data } = response.data;
         this.setCities(data);
+      });
+    }
+
+    if (this.couriers.length == 0) {
+      this.axios.get('/couriers').then(res => {
+        this.couriers = res.data.data;
       });
     }
   }
