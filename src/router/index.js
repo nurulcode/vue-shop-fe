@@ -56,6 +56,14 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "about" */ '../views/Checkout.vue'),
     meta: { auth: true }
+  },
+  {
+    path: '/payment',
+    name: 'payment',
+
+    component: () =>
+      import(/* webpackChunkName: "about" */ '../views/Payment.vue'),
+    meta: { auth: true }
   }
 ];
 

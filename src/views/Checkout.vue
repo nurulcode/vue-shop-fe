@@ -325,16 +325,24 @@ export default {
       };
 
       this.axios
-        .post('payment', formData, config)
+        .post('/payment', formData, config)
         .then(response => {
           let { data } = response;
+          //
+          // if (data && data.status == 'success') {
+          //   // push paymentStore
+          //   this.setPayment(data.data);
+          //   // redirect ti routing payment (Halaman payment)
+          //   this.$router.push({ path: '/payment' });
+          //   // data belanja di kosongkan
+          //   this.setCart([]);
+          // }
+
           if (data && data.status == 'success') {
             // push paymentStore
-            this.setPayment(data.data);
-            // redirect ti routing payment (Halaman payment)
-            this.$router.push({ path: '/payment' });
-            // data belanja di kosongkan
             this.setCart([]);
+            let payment_link = data.data.payment_link;
+            window.location = payment_link;
           }
           this.setAlert({
             status: true,
