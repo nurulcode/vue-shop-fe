@@ -27,34 +27,34 @@ const routes = [
     name: 'categories',
 
     component: () =>
-      import(/* webpackChunkName: "about" */ '../views/Categories.vue')
+      import(/* webpackChunkName: "categories" */ '../views/Categories.vue')
   },
   {
     path: '/books',
     name: 'books',
 
     component: () =>
-      import(/* webpackChunkName: "about" */ '../views/Books.vue')
+      import(/* webpackChunkName: "books" */ '../views/Books.vue')
   },
   {
     path: '/book/:slug',
     name: 'book',
 
-    component: () => import(/* webpackChunkName: "about" */ '../views/Book.vue')
+    component: () => import(/* webpackChunkName: "book" */ '../views/Book.vue')
   },
   {
     path: '/category/:slug',
     name: 'category',
 
     component: () =>
-      import(/* webpackChunkName: "about" */ '../views/Category.vue')
+      import(/* webpackChunkName: "category" */ '../views/Category.vue')
   },
   {
     path: '/checkout',
     name: 'checkout',
 
     component: () =>
-      import(/* webpackChunkName: "about" */ '../views/Checkout.vue'),
+      import(/* webpackChunkName: "checkout" */ '../views/Checkout.vue'),
     meta: { auth: true }
   },
   {
@@ -62,7 +62,15 @@ const routes = [
     name: 'payment',
 
     component: () =>
-      import(/* webpackChunkName: "about" */ '../views/Payment.vue'),
+      import(/* webpackChunkName: "payment" */ '../views/Payment.vue'),
+    meta: { auth: true }
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+
+    component: () =>
+      import(/* webpackChunkName: "profile" */ '../views/Profile.vue'),
     meta: { auth: true }
   }
 ];

@@ -79,19 +79,21 @@
 
           <v-divider></v-divider>
           <v-list shaped>
-            <v-list-item
-              v-for="(item, index) in menus"
-              v-bind:key="`menu-` + index"
-              v-bind:to="item.route"
-            >
-              <v-list-item-icon>
-                <v-icon left>{{ item.icon }}</v-icon>
-              </v-list-item-icon>
+            <template v-for="(item, index) in menus">
+              <v-list-item
+                v-if="!item.auth || (item.auth && !guest)"
+                v-bind:key="`menu-` + index"
+                v-bind:to="item.route"
+              >
+                <v-list-item-icon>
+                  <v-icon left>{{ item.icon }}</v-icon>
+                </v-list-item-icon>
 
-              <v-list-item-content>
-                <v-list-item-title>{{ item.title }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title>{{ item.title }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
           </v-list>
         </v-list>
 
